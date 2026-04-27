@@ -68,7 +68,6 @@ function render(): void {
 // ─── Data fetching ────────────────────────────────────────────────────────────
 
 async function loadTab(tab: Tab): Promise<void> {
-  if (getState().loading) return
   setState({ loading: true, error: null }, { list: true })
   render()
   try {
@@ -125,19 +124,19 @@ renderer.keyInput.on("keypress", async key => {
 
     // Tab switching
     case "1":
-      if (state.currentTab !== "mine") {
+      if (state.currentTab !== "mine" && !state.loading) {
         setState({ currentTab: "mine" }, { tabs: true, list: true }); render()
         await loadTab("mine")
       }
       break
     case "2":
-      if (state.currentTab !== "review") {
+      if (state.currentTab !== "review" && !state.loading) {
         setState({ currentTab: "review" }, { tabs: true, list: true }); render()
         await loadTab("review")
       }
       break
     case "3":
-      if (state.currentTab !== "team") {
+      if (state.currentTab !== "team" && !state.loading) {
         setState({ currentTab: "team" }, { tabs: true, list: true }); render()
         await loadTab("team")
       }
@@ -145,7 +144,7 @@ renderer.keyInput.on("keypress", async key => {
 
     // Refresh
     case "r":
-      await loadTab(state.currentTab)
+      if (!state.loading) await loadTab(state.currentTab)
       break
 
     // Open in browser
