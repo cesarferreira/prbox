@@ -43,7 +43,6 @@ describe("getStatusBadge", () => {
     number: 1,
     title: "Test",
     author: { login: "user" },
-    repository: { nameWithOwner: "org/repo" },
     isDraft: false,
     reviewDecision: null,
     updatedAt: new Date().toISOString(),

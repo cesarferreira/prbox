@@ -62,7 +62,7 @@ export function createList(renderer: CliRenderer): ListNodes {
 function formatRow(pr: PullRequest, termWidth: number): ReturnType<typeof t> | string {
   const badge      = getStatusBadge(pr)
   const badgeFg    = BADGE_FG[badge] ?? "#888888"
-  const repo       = pr.repository.nameWithOwner
+  const repo       = pr.url.replace("https://github.com/", "").split("/pull/")[0]
   const num        = `#${pr.number}`
   const author     = pr.author.login
   const time       = formatRelativeTime(pr.updatedAt)

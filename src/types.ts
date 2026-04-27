@@ -4,7 +4,6 @@ export interface PullRequest {
   number: number
   title: string
   author: { login: string }
-  repository: { nameWithOwner: string }
   isDraft: boolean
   reviewDecision: "APPROVED" | "CHANGES_REQUESTED" | "REVIEW_REQUIRED" | "" | null
   updatedAt: string

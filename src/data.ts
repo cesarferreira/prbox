@@ -1,6 +1,11 @@
 import type { PullRequest, Tab } from "./types"
 
-const GH_FIELDS = "number,title,author,repository,isDraft,reviewDecision,updatedAt,url"
+const GH_FIELDS = "number,title,author,isDraft,reviewDecision,updatedAt,url"
+
+// Extract "owner/repo" from a GitHub PR URL (https://github.com/owner/repo/pull/123)
+function repoFromUrl(url: string): string {
+  return url.replace("https://github.com/", "").split("/pull/")[0]
+}
 
 export function getQuery(tab: Tab): string {
   switch (tab) {
@@ -79,7 +84,7 @@ export async function fetchTeams(): Promise<string[]> {
 
 export async function openPRInBrowser(pr: PullRequest): Promise<void> {
   const proc = Bun.spawn(
-    ["gh", "pr", "view", String(pr.number), "--repo", pr.repository.nameWithOwner, "--web"],
+    ["gh", "pr", "view", String(pr.number), "--repo", repoFromUrl(pr.url), "--web"],
     { stdout: "inherit", stderr: "inherit" },
   )
   await proc.exited
@@ -87,7 +92,7 @@ export async function openPRInBrowser(pr: PullRequest): Promise<void> {
 
 export async function checkoutPR(pr: PullRequest): Promise<void> {
   const proc = Bun.spawn(
-    ["gh", "pr", "checkout", String(pr.number), "--repo", pr.repository.nameWithOwner],
+    ["gh", "pr", "checkout", String(pr.number), "--repo", repoFromUrl(pr.url)],
     { stdout: "inherit", stderr: "inherit" },
   )
   const exitCode = await proc.exited
