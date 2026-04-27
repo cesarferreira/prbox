@@ -1,6 +1,6 @@
 import { createCliRenderer, BoxRenderable, TextRenderable, t, fg, bold } from "@opentui/core"
 import { loadConfig } from "./config"
-import { fetchPRs, fetchTeamPRs, fetchTeams, openPRInBrowser, checkoutPR } from "./data"
+import { fetchPRs, fetchTeamPRs, fetchTeams, openPRInBrowser, checkoutPR, getQuery } from "./data"
 import { getState, setState, getDirty, resetDirty } from "./state"
 import { createTabs, updateTabs } from "./ui/tabs"
 import { createList, updateList } from "./ui/list"
@@ -68,14 +68,13 @@ function render(): void {
 // ─── Data fetching ────────────────────────────────────────────────────────────
 
 async function loadTab(tab: Tab): Promise<void> {
+  if (getState().loading) return
   setState({ loading: true, error: null }, { list: true })
   render()
   try {
     const prs = tab === "team"
       ? await fetchTeamPRs(getState().teams)
-      : await fetchPRs(tab === "mine"
-          ? "author:@me is:open is:pr"
-          : "review-requested:@me is:open is:pr")
+      : await fetchPRs(getQuery(tab))
     setState({ prs, loading: false, selectedIndex: 0 }, { list: true })
   } catch (err) {
     setState(
@@ -106,6 +105,7 @@ renderer.keyInput.on("keypress", async key => {
     // Movement
     case "j":
     case "down": {
+      if (state.prs.length === 0) break
       const next = Math.min(state.selectedIndex + 1, state.prs.length - 1)
       if (next !== state.selectedIndex) { setState({ selectedIndex: next }, { list: true }); render() }
       break
@@ -158,8 +158,16 @@ renderer.keyInput.on("keypress", async key => {
     case "c":
       if (state.prs.length > 0) {
         renderer.suspend()
-        await checkoutPR(state.prs[state.selectedIndex])
+        try {
+          await checkoutPR(state.prs[state.selectedIndex])
+        } catch (err) {
+          setState(
+            { error: err instanceof Error ? err.message : String(err) },
+            { list: true },
+          )
+        }
         renderer.resume()
+        render()
       }
       break
 

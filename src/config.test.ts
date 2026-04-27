@@ -27,4 +27,12 @@ unknown_key = "foo"
     const result = parseConfig("not valid toml ===")
     expect(result.refresh_interval).toBe(DEFAULT_CONFIG.refresh_interval)
   })
+
+  it("clamps refresh_interval to minimum 5 seconds", () => {
+    const result = parseConfig(`
+[ui]
+refresh_interval = 0
+`)
+    expect(result.refresh_interval).toBe(5)
+  })
 })

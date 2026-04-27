@@ -14,7 +14,7 @@ export function parseConfig(tomlContent: string): Config {
     return {
       refresh_interval:
         typeof ui.refresh_interval === "number"
-          ? ui.refresh_interval
+          ? Math.max(5, ui.refresh_interval)
           : DEFAULT_CONFIG.refresh_interval,
     }
   } catch {

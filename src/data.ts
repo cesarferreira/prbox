@@ -90,5 +90,6 @@ export async function checkoutPR(pr: PullRequest): Promise<void> {
     ["gh", "pr", "checkout", String(pr.number), "--repo", pr.repository.nameWithOwner],
     { stdout: "inherit", stderr: "inherit" },
   )
-  await proc.exited
+  const exitCode = await proc.exited
+  if (exitCode !== 0) throw new Error(`gh pr checkout exited with code ${exitCode}`)
 }
